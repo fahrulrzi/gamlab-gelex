@@ -20,6 +20,8 @@ public class Controller : MonoBehaviour
     public float batasKananKiri = 2.7f;
     public float rotationSpeed = 5f;
 
+    public GameManager gameManager;
+
 
     // private Vector3 velocity;
     private bool isGrounded;
@@ -40,10 +42,8 @@ public class Controller : MonoBehaviour
         if (isGrounded && !wasGrounded)
         {
             jumpCount = 0;
-            // velocity.y = -2f; // Mencegah karakter melayang setelah mendarat
         }
 
-        // Mengambil input pergerakan dari pemain
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
         float y = rb.velocity.y;
@@ -60,7 +60,6 @@ public class Controller : MonoBehaviour
         {
             Quaternion targetRotation = Quaternion.LookRotation(move * -1);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
-            // transform.rotation = targetRotation;
         }
 
         if (Input.GetButtonDown("Jump") && (isGrounded || jumpCount < maxJumps))
@@ -69,10 +68,9 @@ public class Controller : MonoBehaviour
             jumpCount++;
         }
 
-        // Mengaplikasikan gravitasi ke karakter
         if (y < 0.01f)
         {
-            y += additionalGravity * fallMultiplier * Time.deltaTime; // Jatuh lebih cepat
+            y += additionalGravity * fallMultiplier * Time.deltaTime; 
         }
         else
         {
@@ -80,7 +78,6 @@ public class Controller : MonoBehaviour
         }
 
         rb.velocity = move * speed + Vector3.up * y;
-        // Mengatur animasi berjalan berdasarkan status pergerakan
         animasi.SetBool("isRun", isMoving);
         animasi.SetBool("isGrounded", isGrounded);
 
@@ -93,26 +90,11 @@ public class Controller : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Kita cek apakah objek yang kita sentuh memiliki tag "Laser"
         if (other.CompareTag("Laser"))
         {
-            // Jika iya, cetak pesan ke konsol untuk memastikan ini bekerja
-            Debug.Log("Player menyentuh laser! GAME OVER!");
-
-            // Panggil fungsi untuk mengakhiri permainan
-            GameOver();
+            gameManager.GameOver();
+            
+            gameObject.SetActive(false);
         }
-    }
-
-    void GameOver()
-    {
-        // Di sini kita akan menulis logika apa yang terjadi saat game over.
-        // Pilihan paling sederhana adalah me-restart level yang sedang berjalan.
-
-        // Mengambil scene yang sedang aktif saat ini
-        Scene currentScene = SceneManager.GetActiveScene();
-
-        // Memuat ulang scene tersebut
-        SceneManager.LoadScene(currentScene.name);
     }
 }
